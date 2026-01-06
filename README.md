@@ -1,23 +1,22 @@
 # TurnOne
 
-TurnOne turns raw session data into coach-quality racing performance reports in under a minute. Built for racing performance engineers and driver coaches.
+Free racing performance report generator. Turn raw session data into coach-quality reports in under a minute.
 
 ## Features
 
 - **AI-Powered Report Generation**: Uses OpenAI GPT-4 to generate professional 400-700 word reports
 - **Structured Analysis**: Follows a strict professional structure with 6 key sections
 - **PDF Export**: Download professional PDF reports ready for sharing
-- **Stripe Subscriptions**: Two-tier pricing ($29/month for 10 reports, $49/month unlimited)
 - **Clean UI**: Modern, responsive design with Tailwind CSS
 - **Production Ready**: Optimized for Vercel deployment
+- **Completely Free**: No authentication, no subscriptions, no limits
 
 ## Tech Stack
 
-- **Next.js 14** (App Router)
+- **Next.js 16** (App Router)
 - **TypeScript**
 - **Tailwind CSS**
 - **OpenAI API** (GPT-4)
-- **Stripe** (Subscriptions)
 - **jsPDF** (PDF generation)
 
 ## Setup
@@ -28,42 +27,25 @@ npm install
 ```
 
 2. **Set up environment variables:**
-Copy `.env.example` to `.env.local` and fill in your keys:
+Create a `.env.local` file with:
+
 ```bash
-cp .env.example .env.local
+# Required
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Optional
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_MOCK_MODE=false
 ```
 
-Required environment variables:
-- `OPENAI_API_KEY` - Your OpenAI API key
-- `STRIPE_SECRET_KEY` - Stripe secret key
-- `STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Same as above (for client-side)
-- `STRIPE_PRICE_ID_BASIC` - Stripe price ID for $29/month plan
-- `STRIPE_PRICE_ID_PRO` - Stripe price ID for $49/month plan
-- `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret
-- `NEXT_PUBLIC_BASE_URL` - Your app URL (e.g., http://localhost:3000)
-- `GOOGLE_CLIENT_ID` - Google OAuth client ID (for authentication)
-- `GOOGLE_CLIENT_SECRET` - Google OAuth client secret
-- `NEXTAUTH_URL` - Your app URL (e.g., http://localhost:3000)
-- `NEXTAUTH_SECRET` - Random secret for NextAuth (generate with `openssl rand -base64 32`)
-- `FREE_PRO_EMAILS` - Comma-separated list of emails for free Pro access (optional)
+**Mock Mode**: Set `NEXT_PUBLIC_MOCK_MODE=true` to test without OpenAI API key (uses sample data).
 
-**Free Pro Access**: Add emails to `FREE_PRO_EMAILS` (comma-separated) to grant free Pro access.
-
-3. **Set up Stripe:**
-   - Create two products in Stripe Dashboard:
-     - Basic: $29/month recurring
-     - Pro: $49/month recurring
-   - Copy the Price IDs to your `.env.local`
-   - Set up webhook endpoint: `https://your-domain.com/api/webhook`
-   - Copy webhook secret to `.env.local`
-
-4. **Run development server:**
+3. **Run development server:**
 ```bash
 npm run dev
 ```
 
-5. **Build for production:**
+4. **Build for production:**
 ```bash
 npm run build
 npm start
@@ -73,7 +55,7 @@ npm start
 
 1. Push your code to GitHub
 2. Import project in Vercel
-3. Add all environment variables in Vercel dashboard
+3. Add environment variable: `OPENAI_API_KEY`
 4. Deploy
 
 ## Project Structure
@@ -82,18 +64,14 @@ npm start
 app/
   ├── api/
   │   ├── generate-report/    # OpenAI report generation
-  │   ├── generate-pdf/        # PDF export
-  │   ├── create-checkout/     # Stripe checkout
-  │   ├── check-subscription/  # Subscription verification
-  │   └── webhook/             # Stripe webhooks
+  │   └── generate-pdf/        # PDF export
   ├── components/
   │   ├── SessionForm.tsx      # Input form
-  │   ├── ReportDisplay.tsx    # Report display
-  │   └── Pricing.tsx          # Pricing component
+  │   └── ReportDisplay.tsx    # Report display
   ├── generate/                # Report generation page
   ├── lib/
   │   ├── prompts.ts           # System prompt
-  │   └── stripe.ts            # Stripe configuration
+  │   └── mockMode.ts          # Mock data for testing
   └── page.tsx                 # Landing page
 ```
 
@@ -107,6 +85,15 @@ Each generated report includes:
 5. Recommendations for Next Session
 6. Target Goals for Next Session
 
+## Environment Variables
+
+### Required
+- `OPENAI_API_KEY` - Your OpenAI API key (get one at https://platform.openai.com)
+
+### Optional
+- `NEXT_PUBLIC_BASE_URL` - Your app URL (defaults to http://localhost:3000)
+- `NEXT_PUBLIC_MOCK_MODE` - Set to `true` to use mock data instead of OpenAI (for testing)
+
 ## License
 
-Private project - All rights reserved
+MIT License - Free to use and modify

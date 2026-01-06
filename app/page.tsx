@@ -1,34 +1,17 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Pricing from './components/Pricing';
-import AuthButton from './components/AuthButton';
 
-function HomeContent() {
-  const searchParams = useSearchParams();
+export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [isMockMode, setIsMockMode] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     setIsMockMode(process.env.NEXT_PUBLIC_MOCK_MODE === 'true');
-    
-    // Handle Stripe redirects (or mock mode redirects)
-    if (searchParams.get('success')) {
-      const sessionId = searchParams.get('session_id');
-      const customerId = searchParams.get('customer_id');
-      if (sessionId) {
-        // Redirect to generate page after successful subscription
-        window.location.href = `/generate?session_id=${sessionId}`;
-      } else if (customerId) {
-        // Mock mode redirect
-        window.location.href = `/generate?customer_id=${customerId}`;
-      }
-    }
-  }, [searchParams]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -44,7 +27,6 @@ function HomeContent() {
               priority
             />
           </Link>
-          <AuthButton />
         </div>
       </header>
 
@@ -62,16 +44,23 @@ function HomeContent() {
               />
             </div>
             <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              TurnOne turns raw session data into coach-quality racing performance reports in under a minute.
+              Free racing performance report generator. Turn raw session data into coach-quality reports in under a minute.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href={mounted && isMockMode ? "/generate" : "#pricing"}
-              className="inline-block bg-[#E10600] text-white py-4 px-8 rounded-lg font-semibold text-lg hover:bg-[#C50500] focus:ring-2 focus:ring-[#E10600] transition-colors"
-            >
-              {mounted && isMockMode ? 'Start Generating Reports (Mock Mode)' : 'Get Started'}
-            </Link>
+              <Link
+                href="/generate"
+                className="inline-block bg-[#E10600] text-white py-4 px-8 rounded-lg font-semibold text-lg hover:bg-[#C50500] focus:ring-2 focus:ring-[#E10600] transition-colors"
+              >
+                Generate a Report
+              </Link>
             </div>
+            {mounted && isMockMode && (
+              <div className="mt-6 inline-block px-4 py-2 bg-yellow-900 border border-yellow-700 rounded-lg">
+                <p className="text-sm text-yellow-200">
+                  🧪 <strong>Mock Mode Active</strong> - No API keys required for testing
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -118,26 +107,19 @@ function HomeContent() {
         </div>
       </div>
 
-      {/* Pricing Section */}
-      <div id="pricing" className="bg-white py-16 scroll-mt-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
-            Simple, Transparent Pricing
-          </h2>
-          <p className="text-center text-gray-600 mb-12">
-            Choose the plan that fits your needs
-          </p>
-          <Pricing />
-        </div>
-      </div>
-
       {/* CTA Section */}
       <div className="bg-[#E10600] text-white py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-xl text-red-100 mb-8">
-            Start generating coach-quality performance reports with TurnOne today.
+            Start generating coach-quality performance reports with TurnOne today. Completely free.
           </p>
+          <Link
+            href="/generate"
+            className="inline-block bg-white text-[#E10600] py-3 px-8 rounded-lg font-semibold text-lg hover:bg-gray-100 focus:ring-2 focus:ring-white transition-colors"
+          >
+            Generate a Report
+          </Link>
         </div>
       </div>
 
@@ -145,27 +127,12 @@ function HomeContent() {
       <footer className="bg-white border-t border-gray-200 py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-center items-center gap-6 text-sm text-gray-600">
-            <a href="/terms" className="hover:text-[#E10600] transition-colors">Terms</a>
-            <a href="/privacy" className="hover:text-[#E10600] transition-colors">Privacy</a>
-            <a href="mailto:support@stratusracing.com" className="hover:text-[#E10600] transition-colors">Support</a>
+            <Link href="/terms" className="hover:text-[#E10600] transition-colors">Terms</Link>
+            <Link href="/privacy" className="hover:text-[#E10600] transition-colors">Privacy</Link>
+            <a href="mailto:support@turnone.com" className="hover:text-[#E10600] transition-colors">Support</a>
           </div>
         </div>
       </footer>
     </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E10600] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    }>
-      <HomeContent />
-    </Suspense>
   );
 }
