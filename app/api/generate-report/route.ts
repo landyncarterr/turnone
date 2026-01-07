@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     });
 
     const report = resp.choices?.[0]?.message?.content?.trim() || "";
-    return NextResponse.json({ report });
+    return NextResponse.json({ report, sessionData });
   } catch (err: any) {
     const msg =
       err?.message?.includes("OPENAI_API_KEY")
