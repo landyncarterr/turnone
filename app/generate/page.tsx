@@ -67,7 +67,19 @@ export default function GeneratePage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate report. Please try again.');
+        const errorMessage = errorData.error || 'Failed to generate report. Please try again.';
+        
+        // Log debug info if available
+        if (errorData.debugId || errorData.errorType) {
+          console.error('[Report Generation Error]', {
+            debugId: errorData.debugId,
+            errorType: errorData.errorType,
+            message: errorMessage,
+            status: response.status
+          });
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
