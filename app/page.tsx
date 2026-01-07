@@ -16,54 +16,20 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/">
+      <header className="w-full bg-black flex items-center justify-center h-16 sm:h-20">
+        <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-center">
+          <Link href="/" className="h-full flex items-center">
             <Image
-              src="/turnone-logo.png"
+              src="/turnone-logo1.png"
               alt="TurnOne"
-              height={32}
-              width={180}
+              height={168}
+              width={840}
+              className="h-full w-auto object-contain scale-200 origin-center"
               priority
             />
           </Link>
         </div>
       </header>
-
-      {/* Hero Section */}
-      <div className="bg-black text-white">
-        <div className="max-w-6xl mx-auto px-4 py-20">
-          <div className="text-center">
-            <div className="mb-6 flex justify-center">
-              <Image
-                src="/turnone-logo.png"
-                alt="TurnOne"
-                height={64}
-                width={360}
-                priority
-              />
-            </div>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Free racing performance report generator. Turn raw session data into coach-quality reports in under a minute.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/generate"
-                className="inline-block bg-[#E10600] text-white py-4 px-8 rounded-lg font-semibold text-lg hover:bg-[#C50500] focus:ring-2 focus:ring-[#E10600] transition-colors"
-              >
-                Generate a Report
-              </Link>
-            </div>
-            {mounted && isMockMode && (
-              <div className="mt-6 inline-block px-4 py-2 bg-yellow-900 border border-yellow-700 rounded-lg">
-                <p className="text-sm text-yellow-200">
-                  🧪 <strong>Mock Mode Active</strong> - No API keys required for testing
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
 
       {/* Features Section */}
       <div className="max-w-6xl mx-auto px-4 py-16">

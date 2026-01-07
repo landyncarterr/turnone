@@ -122,14 +122,15 @@ export default function GeneratePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/">
+      <header className="w-full bg-black flex items-center justify-center h-16 sm:h-20">
+        <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-center">
+          <Link href="/" className="h-full flex items-center">
             <Image
-              src="/turnone-logo.png"
+              src="/turnone-logo1.png"
               alt="TurnOne"
-              height={32}
-              width={180}
+              height={168}
+              width={840}
+              className="h-full w-auto object-contain scale-200 origin-center"
               priority
             />
           </Link>
