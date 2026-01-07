@@ -16,7 +16,10 @@ export const metadata: Metadata = {
   title: "TurnOne",
   description: "TurnOne — Professional post-session racing performance reports for drivers, coaches, and teams.",
   icons: {
-    icon: "/turnone-logo.png",
+    icon: [
+      { url: "/favicon.png", type: "image/png", sizes: "32x32" },
+    ],
+    apple: [{ url: "/icon.png", sizes: "180x180" }],
   },
 };
 

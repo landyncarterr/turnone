@@ -16,27 +16,48 @@ export async function POST(request: NextRequest) {
   try {
     const sessionData = await request.json();
 
-    // Validate required fields
-    const required = ['driver_name', 'car', 'track', 'session_type', 'conditions', 'best_lap', 'avg_lap'];
-    for (const field of required) {
-      if (!sessionData[field] || sessionData[field].trim() === '') {
-        return NextResponse.json(
-          { error: `Missing required field: ${field}` },
-          { status: 400 }
-        );
-      }
+    // Validate required fields (only best_lap and avg_lap are truly required)
+    // Other fields can be "Unknown" for CSV-only submissions
+    if (!sessionData.best_lap || sessionData.best_lap.trim() === '') {
+      return NextResponse.json(
+        { error: 'Best lap time is required. Please provide a best lap time or upload a CSV with lap data.' },
+        { status: 400 }
+      );
     }
+
+    if (!sessionData.avg_lap || sessionData.avg_lap.trim() === '') {
+      return NextResponse.json(
+        { error: 'Average lap time is required. Please provide an average lap time or upload a CSV with lap data.' },
+        { status: 400 }
+      );
+    }
+
+    // Ensure other fields have defaults if missing (for CSV mode)
+    const defaults = {
+      driver_name: sessionData.driver_name || 'Unknown',
+      car: sessionData.car || 'Unknown',
+      track: sessionData.track || 'Unknown',
+      session_type: sessionData.session_type || 'Practice',
+      conditions: sessionData.conditions || 'Unknown',
+      consistency: sessionData.consistency || '',
+      driver_notes: sessionData.driver_notes || '',
+    };
+
+    const finalSessionData = {
+      ...sessionData,
+      ...defaults,
+    };
 
     // MOCK MODE: Return mock report immediately
     if (MOCK_MODE) {
       // Simulate API delay for realism
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      const mockReport = generateMockReport(sessionData);
-      return NextResponse.json({ report: mockReport, sessionData });
+      const mockReport = generateMockReport(finalSessionData);
+      return NextResponse.json({ report: mockReport, sessionData: finalSessionData });
     }
 
-    const userPrompt = buildUserPrompt(sessionData);
+    const userPrompt = buildUserPrompt(finalSessionData);
     const openai = getOpenAI();
 
     const completion = await openai.chat.completions.create({
@@ -86,7 +107,7 @@ export async function POST(request: NextRequest) {
 
     console.log('[Analytics] Report generated successfully');
 
-    return NextResponse.json({ report, sessionData });
+    return NextResponse.json({ report, sessionData: finalSessionData });
   } catch (error) {
     console.error('Error generating report:', error);
     
