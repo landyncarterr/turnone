@@ -10,9 +10,10 @@ interface ReportDisplayProps {
     track: string;
     session_type: string;
   };
+  fallbackUsed?: boolean;
 }
 
-export default function ReportDisplay({ report, sessionData }: ReportDisplayProps) {
+export default function ReportDisplay({ report, sessionData, fallbackUsed }: ReportDisplayProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -96,6 +97,13 @@ export default function ReportDisplay({ report, sessionData }: ReportDisplayProp
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-8">
+      {fallbackUsed && (
+        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            Backup mode: Generated without AI due to temporary service limits.
+          </p>
+        </div>
+      )}
       <div className="flex justify-between items-center mb-6 pb-4 border-b">
         <h2 className="text-2xl font-bold text-gray-900">Performance Report</h2>
         <div className="flex gap-3">

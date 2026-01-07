@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { NextRequest, NextResponse } from "next/server";
 import { REPORT_SYSTEM_PROMPT, buildUserPrompt } from "@/app/lib/prompts";
+import { generateFallbackReport } from "@/app/lib/fallbackReport";
 
 export const runtime = "nodejs";
 
@@ -51,33 +52,60 @@ export async function POST(req: NextRequest) {
       driver_notes: sessionData.driver_notes || '',
     };
 
-    const openai = getOpenAI();
-    const userPrompt = buildUserPrompt(finalSessionData);
+    // Try OpenAI first
+    let report: string;
+    let fallbackUsed = false;
 
-    const resp = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-      temperature: 0.2,
-      max_tokens: 1200,
-      messages: [
-        { role: "system", content: REPORT_SYSTEM_PROMPT },
-        { role: "user", content: userPrompt },
-      ],
-    });
+    try {
+      const openai = getOpenAI();
+      const userPrompt = buildUserPrompt(finalSessionData);
 
-    const report = resp.choices?.[0]?.message?.content?.trim() || "";
-    
-    if (!report) {
-      console.error("[generate-report] Empty report generated", { 
-        choices: resp.choices,
-        model: process.env.OPENAI_MODEL || "gpt-4o-mini"
+      const resp = await openai.chat.completions.create({
+        model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+        temperature: 0.2,
+        max_tokens: 1200,
+        messages: [
+          { role: "system", content: REPORT_SYSTEM_PROMPT },
+          { role: "user", content: userPrompt },
+        ],
       });
-      return NextResponse.json(
-        { error: 'Failed to generate report. The AI returned an empty response. Please try again.' },
-        { status: 500 }
-      );
+
+      report = resp.choices?.[0]?.message?.content?.trim() || "";
+      
+      if (!report) {
+        console.warn("[generate-report] Empty report from OpenAI, using fallback");
+        report = generateFallbackReport(finalSessionData);
+        fallbackUsed = true;
+      }
+    } catch (openaiErr: any) {
+      // Check if OpenAI failed due to quota/availability issues
+      const message = openaiErr?.message || "";
+      const status = openaiErr?.status || openaiErr?.response?.status || openaiErr?.statusCode || openaiErr?.code;
+      
+      const shouldUseFallback = 
+        message.includes("OPENAI_API_KEY") ||
+        message.includes("api key") ||
+        status === 429 ||
+        message.toLowerCase().includes("rate limit") ||
+        message.toLowerCase().includes("quota") ||
+        message.toLowerCase().includes("insufficient") ||
+        message.toLowerCase().includes("outage") ||
+        message.toLowerCase().includes("unavailable");
+
+      if (shouldUseFallback) {
+        console.warn("[generate-report] OpenAI unavailable, using fallback", { 
+          errorType: shouldUseFallback ? "fallback_triggered" : "unknown",
+          message: message.substring(0, 100)
+        });
+        report = generateFallbackReport(finalSessionData);
+        fallbackUsed = true;
+      } else {
+        // Re-throw if it's not a fallback-eligible error
+        throw openaiErr;
+      }
     }
 
-    return NextResponse.json({ report, sessionData: finalSessionData });
+    return NextResponse.json({ report, sessionData: finalSessionData, fallbackUsed });
   } catch (err: any) {
     const debugId = Math.random().toString(36).slice(2, 8);
     const message = err?.message || "";

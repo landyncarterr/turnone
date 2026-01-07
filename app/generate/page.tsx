@@ -35,6 +35,7 @@ export default function GeneratePage() {
   const [mounted, setMounted] = useState(false);
   const [isMockMode, setIsMockMode] = useState(false);
   const [reportHistory, setReportHistory] = useState<ReportHistoryEntry[]>([]);
+  const [fallbackUsed, setFallbackUsed] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -109,6 +110,7 @@ export default function GeneratePage() {
 
       setReport(result.report);
       setSessionData(result.sessionData);
+      setFallbackUsed(result.fallbackUsed || false);
       
       // Scroll to report
       setTimeout(() => {
@@ -128,6 +130,7 @@ export default function GeneratePage() {
     setReport(null);
     setSessionData(null);
     setError(null);
+    setFallbackUsed(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -233,7 +236,7 @@ export default function GeneratePage() {
                 Generate Another Report
               </button>
             </div>
-            {sessionData && <ReportDisplay report={report} sessionData={sessionData} />}
+            {sessionData && <ReportDisplay report={report} sessionData={sessionData} fallbackUsed={fallbackUsed} />}
           </>
         )}
       </div>
